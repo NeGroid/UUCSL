@@ -1,0 +1,17 @@
+<Project>
+  <Import Project="..\Directory.Build.props" />
+
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(MSBuildProjectExtension)' != '.msbuildproj'">
+    <PackageReference Include="AsyncFixer" Version="1.1.6" PrivateAssets="All" />
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.1" PrivateAssets="All" />
+    <PackageReference Include="Roslynator.Analyzers" Version="2.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\**\*.cs" Link="%(Filename)%(Extension)"/>
+  </ItemGroup>
+</Project>
