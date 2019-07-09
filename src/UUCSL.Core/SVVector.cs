@@ -5,9 +5,9 @@ using System.Text;
 
 namespace UUCSL.Core
 {
-	public struct SVVector : IComparable<SVVector>, IEquatable<SVVector>
+	public class SVVector : IComparable<SVVector>, IEquatable<SVVector>
 	{
-		public byte[] Value;
+		public byte[] Value { get; private set; }
 
 		public byte Byte0 => Value[0];
 
@@ -35,7 +35,7 @@ namespace UUCSL.Core
 
 		public byte Byte12 => Value[12];
 
-		public BitArray Mask;
+		public BitArray Mask { get ; private set; }
 
 		private SVVector(string key)
 		{
@@ -89,13 +89,9 @@ namespace UUCSL.Core
 			foreach(var byteN in BytesN)
 			{
 				result = byteN(this).CompareTo(byteN(other));
-				if(result > 0)
+				if(result != 0)
 				{
-					return 1;
-				}
-				else if(result < 1)
-				{
-					return -1;
+					return result;
 				}
 			}
 
@@ -106,9 +102,14 @@ namespace UUCSL.Core
 
 		public bool Includes(SVVector other)
 		{
+			if(Mask.Or(other.Mask) != Mask)
+			{
+				return false;
+			}
+
 			foreach(var byteN in BytesN)
 			{
-				if(byteN(this).CompareTo(byteN(other)) > 0)
+				if(byteN(this).CompareTo(byteN(other)) < 0)
 				{
 					return false;
 				}

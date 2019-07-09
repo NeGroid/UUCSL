@@ -1,33 +1,14 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Xunit;
 
 namespace UUCSL.Core.Tests
 {
-	public class UnitTest1
+	public class SVBlockListTests
 	{
 		[Fact]
-		public void Create_SVVector_from_SV_string()
-		{
-			var svString = "[SV 0 0 0 0 0 0 1 0 1 1 1 0 1]";
-			var vector = SVVector.FromSV(svString);
-
-			var sb = new StringBuilder();
-			for(var i = 0; i < vector.Mask.Length; i++)
-			{
-				sb.Append(vector.Mask[i] ? '1' : '0');
-			}
-			var mask = sb.ToString();
-
-			Assert.Equal(svString, vector.ToString());
-			Assert.Equal("0000001011101", mask);
-		}
-
-		[Fact]
-		public void Test1()
+		public void Create_SVBlock_from_SV_string()
 		{
 			var fileContent = @"[ELB samples = 3 patterns = 5]
 [SV 0 0 0 0 0 0 1 0 1 1 1 0 1]
@@ -66,14 +47,12 @@ AND";
 			}
 
 			var blockList = new SVBlockList(blocks);
-			blockList.ToBalanced();
-
 			var svKeys = blockList.Keys.ToArray();
 
 			Assert.Equal(new []
 				{
-					"[SV 0 0 0 0 0 0 1 0 1 1 1 0 1]",
-					"[SV 0 0 0 0 0 0 0 1 1 1 1 0 1]"
+					"[SV 0 0 0 0 0 0 0 1 1 1 1 0 1]",
+					"[SV 0 0 0 0 0 0 1 0 1 1 1 0 1]"
 				},
 				svKeys);
 		}
