@@ -7,7 +7,7 @@ namespace UUCSL.Benchmarks
 {
 	public static class TestData
 	{
-		public static IEnumerable<Block> GenerateBlocks(int count = 100_000)
+		public static IEnumerable<Block> GenerateBlocks(int count = 1_000_000)
 		{
 			var rand = new Random(42);
 			foreach(var i in Enumerable.Range(0, count))
