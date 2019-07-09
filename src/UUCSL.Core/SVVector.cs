@@ -1,6 +1,6 @@
 using System;
+using System.Collections;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace UUCSL.Core
@@ -23,21 +23,32 @@ namespace UUCSL.Core
 
 		public byte Byte6 => Value[6];
 
-		public byte Byte7 => Value[6];
+		public byte Byte7 => Value[7];
 
-		public byte Byte8 => Value[6];
+		public byte Byte8 => Value[8];
 
-		public byte Byte9 => Value[6];
+		public byte Byte9 => Value[9];
 
-		public byte Byte10 => Value[6];
+		public byte Byte10 => Value[10];
 
-		public byte Byte11 => Value[6];
+		public byte Byte11 => Value[11];
 
-		public byte Byte12 => Value[6];
+		public byte Byte12 => Value[12];
+
+		public BitArray Mask;
 
 		private SVVector(string key)
 		{
-			Value = key.Select(t => (byte)t).ToArray();
+			Value = Encoding.ASCII.GetBytes(key);
+			Mask = new BitArray(new bool[Value.Length]);
+
+			var zero = (int)'0';
+
+			for(int i = 0; i < Value.Length; i++)
+			{
+				Value[i] = (byte)((int)Value[i] - zero);
+				Mask.Set(i, (int)Value[i] > 0);
+			}
 		}
 
 		/// <summary>
@@ -45,10 +56,10 @@ namespace UUCSL.Core
 		/// </summary>
 		/// <param name="svStirng">[SV 0 0 0 0 1 0 1 4 0 2 1 0 2]</param>
 		/// <returns>SVVector</returns>
-		public static SVVector FromSV(string svStirng)
+		public static SVVector FromSV(string svString)
 		{
 			var sb = new StringBuilder();
-			foreach(var digit in svStirng.Select(t => t).Where(ch => Char.IsDigit(ch)))
+			foreach(var digit in svString.Select(t => t).Where(ch => Char.IsDigit(ch)))
 			{
 				sb.Append(digit);
 			}
@@ -60,7 +71,7 @@ namespace UUCSL.Core
 			var sb = new StringBuilder("[SV");
 			foreach(var byteN in BytesN)
 			{
-				sb.Append(' ').Append((char)byteN(this));
+				sb.Append(' ').Append((int)byteN(this) - (int)0);
 			}
 			sb.Append(']');
 			return sb.ToString();
