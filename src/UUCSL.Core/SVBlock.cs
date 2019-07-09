@@ -39,5 +39,7 @@ namespace UUCSL.Core
 		}
 
 		public bool Includes(SVBlock other) => Key.Includes(other.Key);
+
+		public override string ToString() => Key.ToString();
 	}
 }

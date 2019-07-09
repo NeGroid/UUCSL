@@ -15,57 +15,58 @@ namespace UUCSL.Core
 		{
 			foreach(var block in blocks)
 			{
-				Blocks[block.Vector] = block;
-				var index = Blocks.IndexOfValue(block);
-				if(index < Blocks.Count - 1)
+				if(Blocks.ContainsValue(block))
 				{
-					// check all right blocks
-					var rightRange = Enumerable.Range(index + 1, Blocks.Count - index - 1).Select(i => Blocks.Values[i]);
-					var includedByRight = false;
-					foreach(var right in rightRange)
-					{
-						includedByRight = right.Includes(block);
-						if(includedByRight)
-						{
-							Blocks.Remove(block.Vector);
-							break;
-						}
-					}
-
-					if(!includedByRight)
-					{
-						var leftRange = Enumerable.Range(0, index).Reverse().Select(i => Blocks.Values[i]);
-						var includesLeft = false;
-						foreach(var left in leftRange)
-						{
-							includesLeft = block.Includes(left);
-							if(includesLeft)
-							{
-								Blocks.Remove(left.Vector);
-								break;
-							}
-						}
-					}
+					continue;
 				}
-				else 
+
+				Blocks[block.Vector] = block;
+
+				var index = Blocks.IndexOfValue(block);
+				if(!CheckRightBlocks(block, index))
 				{
-					if(index > 0)
-					{
-						// check all left blocks
-						var leftRange = Enumerable.Range(0, index).Reverse().Select(i => Blocks.Values[i]);
-						var includesLeft = false;
-						foreach(var left in leftRange)
-						{
-							includesLeft = block.Includes(left);
-							if(includesLeft)
-							{
-								Blocks.Remove(left.Vector);
-								break;
-							}
-						}
-					}
+					CheckLeftBlocks(block, index);
 				}
 			}
+		}
+
+		private void CheckLeftBlocks(SVBlock block, int index)
+		{
+			var count = index - 1;
+			if(count <= 0)
+			{
+				return;
+			}
+
+			var leftRange = Blocks.Values
+				.Take(count)
+				.Where(b => block.Includes(b));
+
+			foreach(var subblock in leftRange)
+			{
+				Blocks.Remove(subblock.Vector);
+			}
+		}
+
+		private bool CheckRightBlocks(SVBlock block, int index)
+		{
+			var count = Blocks.Count - index - 1;
+			if(count <= 0)
+			{
+				return false;
+			}
+
+			var includesBlock = Blocks.Values
+				.Reverse()
+				.Take(count)
+				.Any(b => b.Includes(block));
+
+			if(includesBlock)
+			{
+				return Blocks.Remove(block.Vector);
+			}
+
+			return false;
 		}
 	}
 }
