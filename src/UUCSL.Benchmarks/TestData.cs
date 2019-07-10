@@ -2,24 +2,24 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UUCSL.Core;
+using System.Text;
 
 namespace UUCSL.Benchmarks
 {
 	public static class TestData
 	{
-		public static IEnumerable<Block> GenerateBlocks(int count = 1_000_000)
+		public static IEnumerable<SVBlock> GenerateBlocks(int count = 1_000_000)
 		{
 			var rand = new Random(42);
 			foreach(var i in Enumerable.Range(0, count))
 			{
-				var words = new List<Word>();
-				foreach(var j in Enumerable.Range(0, 5))
-				{
-					var bytes = new byte[8];
-					rand.NextBytes(bytes);
-					words.Add(new Word(bytes));
-				}
-				var block = new Block(words.ToArray());
+				var bytes = new byte[13];
+				rand.NextBytes(bytes);
+				var sb = new StringBuilder("SV ");
+				sb.Append(string.Join(' ', bytes));
+				sb.Append(']');
+				var v = SVVector.FromSV(sb.ToString());
+				var block = SVBlock.FromSV(v, 5, new string[] { "ABC" });
 				yield return block;
 			}
 		}

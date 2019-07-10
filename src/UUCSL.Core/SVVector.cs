@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Linq;
 using System.Text;
 
@@ -35,19 +34,16 @@ namespace UUCSL.Core
 
 		public byte Byte12 => Value[12];
 
-		public BitArray Mask { get ; private set; }
-
 		private SVVector(string key)
 		{
 			Value = Encoding.ASCII.GetBytes(key);
-			Mask = new BitArray(new bool[Value.Length]);
 
 			var zero = (int)'0';
 
 			for(int i = 0; i < Value.Length; i++)
 			{
 				Value[i] = (byte)((int)Value[i] - zero);
-				Mask.Set(i, (int)Value[i] > 0);
+				//Mask.Set(i, (int)Value[i] > 0);
 			}
 		}
 
@@ -102,11 +98,6 @@ namespace UUCSL.Core
 
 		public bool Includes(SVVector other)
 		{
-			if(Mask.Or(other.Mask) != Mask)
-			{
-				return false;
-			}
-
 			foreach(var byteN in BytesN)
 			{
 				if(byteN(this).CompareTo(byteN(other)) < 0)
