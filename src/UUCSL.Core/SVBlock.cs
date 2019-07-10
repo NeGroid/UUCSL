@@ -23,7 +23,7 @@ namespace UUCSL.Core
 			}
 		}
 
-		public static SVBlock FromSV(SVVector key, int patterns, IEnumerable<string> words) =>
+		public static SVBlock FromSV(SVVector key, IEnumerable<string> words) =>
 			new SVBlock(key, string.Join(' ', words));
 
 		public int CompareTo(SVBlock other) => Key.CompareTo(other.Key);

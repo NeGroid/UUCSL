@@ -20,7 +20,7 @@ namespace UUCSL.Console
 		public NCSTaskService(ILoggerFactory loggerFactory, IOptions<TaskOptions> file)
 		{
 			_logger = loggerFactory.CreateLogger<NCSTaskService>();
-			
+
 			if(!Path.IsPathRooted(file.Value.File))
 			{
 				_filePath = Path.GetFullPath(file.Value.File);
@@ -34,29 +34,44 @@ namespace UUCSL.Console
 
 		public async Task StartAsync(CancellationToken cancellationToken)
 		{
+			var startedAt = DateTime.Now;
 			_logger.LogInformation("NCSTaskService started");
+			var allLines = await File.ReadAllLinesAsync(_filePath, cancellationToken);
 
-			using(var stream = File.OpenRead(_filePath))
-			using (StreamReader reader = new StreamReader(stream))
+			var lines = allLines.Where(t => !string.IsNullOrEmpty(t) && !t.StartsWith("#")).ToArray();
+
+			if(lines.Length < 2)
 			{
-				await reader.ReadLineAsync(); // [NCS = NCDA8]
-				await reader.ReadLineAsync(); // [Deuterated = False]
-
-				while(true)
-				{
-					if(cancellationToken.IsCancellationRequested)
-					{
-						return;
-					}
-
-					string elbLine = await reader.ReadLineAsync(); // [ELB samples = 3 patterns = 5]
-					if(string.IsNullOrEmpty(elbLine))
-					{
-						break;
-					}
-					SVVector vector = SVVector.FromSV( await reader.ReadLineAsync()); // [SV 0 0 0 0 0 0 0 1 1 1 1 0 1]
-				}
+				throw new InvalidOperationException($"Too few lines in file the file '{_filePath}");
 			}
+
+			var blocks = new List<SVBlock>();
+			var index = 2;
+			while(index < lines.Length)
+			{
+				if(cancellationToken.IsCancellationRequested)
+				{
+					return;
+				}
+
+				_logger.LogDebug($"ELB: {lines[index]}");
+				var elbLine = new ELBLine(lines[index]); // [ELB samples = 3 patterns = 5]
+
+				_logger.LogDebug($"SV: {lines[index + 1]}");
+				var vector = SVVector.FromSV(lines[index + 1]); // [SV 0 0 0 0 0 0 0 1 1 1 1 0 1]
+
+				var words = Enumerable.Range(index + 2, elbLine.Patterns).Select(i => lines[i]);
+				_logger.LogDebug($"Words ({elbLine.Patterns}): {String.Join(' ', words)}");
+
+				var block = SVBlock.FromSV(vector, words);
+				blocks.Add(block);
+				index += elbLine.Patterns + 2;
+			}
+
+			var blockList = new SVBlockList(blocks);
+			var time = (DateTime.Now - startedAt).TotalSeconds;
+			_logger.LogInformation($"{blockList.Blocks.Count} blocks from total {blocks.Count} found for total time {time}");
+			_logger.LogInformation(string.Join(Environment.NewLine, blockList.Blocks.Select(t => t.Key)));
 		}
 
 		public Task StopAsync(CancellationToken cancellationToken)
@@ -72,10 +87,16 @@ namespace UUCSL.Console
 
 			public ELBLine(string line)
 			{
+				if(string.IsNullOrEmpty(line))
+				{
+					throw new ArgumentNullException(nameof(line));
+				}
+
 				//[ELB samples = 3 patterns = 12]
 				var nums = line
 					.Replace("[ELB samples = ", string.Empty)
 					.Replace("patterns = ", string.Empty)
+					.Replace("]", string.Empty)
 					.Split(' ', StringSplitOptions.RemoveEmptyEntries)
 					.Select(int.Parse)
 					.ToArray();

@@ -36,6 +36,10 @@ namespace UUCSL.Core
 
 		private SVVector(string key)
 		{
+			if(key.Length != 13)
+			{
+				throw new ArgumentException($"Vector length should be equal 13, but actual value is {key.Length}");
+			}
 			Value = Encoding.ASCII.GetBytes(key);
 
 			var zero = (int)'0';
@@ -43,7 +47,6 @@ namespace UUCSL.Core
 			for(int i = 0; i < Value.Length; i++)
 			{
 				Value[i] = (byte)((int)Value[i] - zero);
-				//Mask.Set(i, (int)Value[i] > 0);
 			}
 		}
 
@@ -54,6 +57,11 @@ namespace UUCSL.Core
 		/// <returns>SVVector</returns>
 		public static SVVector FromSV(string svString)
 		{
+			if(string.IsNullOrEmpty(svString))
+			{
+				throw new ArgumentNullException(nameof(svString));
+			}
+
 			var sb = new StringBuilder();
 			foreach(var digit in svString.Select(t => t).Where(ch => Char.IsDigit(ch)))
 			{
