@@ -19,7 +19,7 @@ namespace UUCSL.Benchmarks
 				sb.Append(string.Join(' ', bytes));
 				sb.Append(']');
 				var v = SVVector.FromSV(sb.ToString());
-				var block = SVBlock.FromSV(v, 5, new string[] { "ABC" });
+				var block = SVBlock.FromSV(v, new string[] { "ABC" });
 				yield return block;
 			}
 		}
