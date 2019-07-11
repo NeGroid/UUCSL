@@ -42,7 +42,7 @@ namespace UUCSL.Console
 
 			if(lines.Length < 2)
 			{
-				throw new InvalidOperationException($"Too few lines in file the file '{_filePath}");
+				throw new InvalidOperationException($"Too few lines in the file '{_filePath}");
 			}
 
 			var blocks = new List<SVBlock>();

@@ -40,7 +40,7 @@ AND";
 					{
 						var svVector = SVVector.FromSV(line);
 						var words = Enumerable.Range(0, patterns).Select(i => reader.ReadLine());
-						var block = SVBlock.FromSV(svVector, patterns, words);
+						var block = SVBlock.FromSV(svVector, words);
 						blocks.Add(block);
 					}
 				}
@@ -97,7 +97,7 @@ AND";
 					{
 						var svVector = SVVector.FromSV(line);
 						var words = Enumerable.Range(0, patterns).Select(i => reader.ReadLine());
-						var block = SVBlock.FromSV(svVector, patterns, words);
+						var block = SVBlock.FromSV(svVector, words);
 						blocks.Add(block);
 					}
 				}
@@ -161,7 +161,7 @@ AND";
 					{
 						var svVector = SVVector.FromSV(line);
 						var words = Enumerable.Range(0, patterns).Select(i => reader.ReadLine());
-						var block = SVBlock.FromSV(svVector, patterns, words);
+						var block = SVBlock.FromSV(svVector, words);
 						blocks.Add(block);
 					}
 				}
@@ -176,6 +176,61 @@ AND";
 					"[SV 0 0 0 0 0 0 1 0 1 1 1 0 1]"
 				},
 				svKeys);
+		}
+
+		[Fact]
+		public void Check_if_long_equal_vectors_are_equal()
+		{
+			var v1 = SVVector.FromSV("[SV 0 0 0 0 1 0 0 3 1 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 ]");
+			var v2 = SVVector.FromSV("[SV 0 0 0 0 1 0 0 3 1 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 ]");
+
+
+			Assert.True(v1.Equals(v2));
+		}
+
+		[Fact]
+		public void Compares_long_equal_vectors()
+		{
+			var v1 = SVVector.FromSV("[SV 0 0 0 0 1 0 0 3 1 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 ]");
+			var v2 = SVVector.FromSV("[SV 0 0 0 0 1 0 0 3 1 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 ]");
+
+			Assert.Equal(0, v1.CompareTo(v2));
+		}
+
+		[Fact]
+		public void Compares_long_vectors_of_different_length()
+		{
+			var v1 = SVVector.FromSV("[SV 0 0 0 1 0 0 3 1 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 ]");
+			var v2 = SVVector.FromSV("[SV 0 0 0 0 1 0 0 3 1 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 ]");
+
+			Assert.Equal(-1, v1.CompareTo(v2));
+		}
+
+		[Fact]
+		public void Compares_long_vectors_of_different_length2()
+		{
+			var v1 = SVVector.FromSV("[SV 0 0 0 1 0 0 3 1 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0]");
+			var v2 = SVVector.FromSV("[SV 0 0 0 1 0 0 3 1 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0]");
+
+			Assert.Equal(1, v1.CompareTo(v2));
+		}
+
+		[Fact]
+		public void Check_if_vector_includes_other_vector()
+		{
+			var v1 = SVVector.FromSV("[SV 1 0 0 1 0 0 3 1 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0]");
+			var v2 = SVVector.FromSV("[SV 0 0 0 1 0 0 2 1 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]");
+
+			Assert.True(v1.Includes(v2));
+		}
+
+		[Fact]
+		public void Check_if_vector_does_not_include_other_vector()
+		{
+			var v1 = SVVector.FromSV("[SV 1 0 0 1 0 0 3 1 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 0]");
+			var v2 = SVVector.FromSV("[SV 0 1 0 1 0 0 2 1 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0]");
+
+			Assert.False(v1.Includes(v2));
 		}
 	}
 }
