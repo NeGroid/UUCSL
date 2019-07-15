@@ -73,8 +73,8 @@ namespace UUCSL.Console
 
 			var blockList = new SVBlockList(blocks);
 			var time = (DateTime.Now - startedAt).TotalSeconds;
-			_logger.LogInformation($"{blockList.Blocks.Count} blocks from total {blocks.Count} found for total time {time}");
 			_logger.LogInformation(string.Join(Environment.NewLine, blockList.Blocks.Select(t => t.Key)));
+			_logger.LogInformation($"{blockList.Blocks.Count} blocks from total {blocks.Count} found for total time {time}");
 		}
 
 		public Task StopAsync(CancellationToken cancellationToken)
