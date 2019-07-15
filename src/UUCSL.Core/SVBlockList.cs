@@ -7,7 +7,6 @@ namespace UUCSL.Core
 	public class SVBlockList
 	{
 		public SortedList<SVVector, SVBlock> Blocks { get; private set; } = new SortedList<SVVector, SVBlock>();
-		public SortedDictionary<SVVector, SVBlock> Duplicates { get; private set; } = new SortedDictionary<SVVector, SVBlock>();
 
 		public IEnumerable<string> Keys => Blocks.Keys.Select(t => t.ToString());
 
