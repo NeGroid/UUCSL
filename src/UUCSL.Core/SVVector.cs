@@ -61,6 +61,11 @@ namespace UUCSL.Core
 		//   	A vector to compare with.
 		public int CompareTo(SVVector other)
 		{
+			if(ReferenceEquals(this, other))
+			{
+				return 0;
+			}
+
 			if(Length != other.Length)
 			{
 				return Length.CompareTo(other.Length);
