@@ -4,9 +4,11 @@ using System.Text;
 
 namespace UUCSL.Core
 {
-	public class SVVector : IComparable<SVVector>, IEquatable<SVVector>
+	public sealed class SVVector : IComparable<SVVector>, IEquatable<SVVector>
 	{
-		public byte[] Value { get; private set; }
+		private const char Zero = '0';
+
+		public byte[] Value { get; }
 
 		public int Length => Value.Length;
 
@@ -14,11 +16,9 @@ namespace UUCSL.Core
 		{
 			Value = Encoding.ASCII.GetBytes(key);
 
-			var zero = (int)'0';
-
-			for(int i = 0; i < Value.Length; i++)
+			for (int i = 0; i < Value.Length; i++)
 			{
-				Value[i] = (byte)((int)Value[i] - zero);
+				Value[i] = (byte)(Value[i] - Zero);
 			}
 		}
 
@@ -29,13 +29,13 @@ namespace UUCSL.Core
 		/// <returns>SVVector</returns>
 		public static SVVector FromSV(string svString)
 		{
-			if(string.IsNullOrEmpty(svString))
+			if (string.IsNullOrEmpty(svString))
 			{
 				throw new ArgumentNullException(nameof(svString));
 			}
 
 			var sb = new StringBuilder();
-			foreach(var digit in svString.Select(t => t).Where(ch => Char.IsDigit(ch)))
+			foreach (var digit in svString.Select(t => t).Where(ch => Char.IsDigit(ch)))
 			{
 				sb.Append(digit);
 			}
@@ -45,9 +45,9 @@ namespace UUCSL.Core
 		public override string ToString()
 		{
 			var sb = new StringBuilder("[SV");
-			foreach(var byteN in Value)
+			foreach (var byteN in Value)
 			{
-				sb.Append(' ').Append((int)byteN - (int)0);
+				sb.Append(' ').Append(byteN - 0);
 			}
 			sb.Append(']');
 			return sb.ToString();
@@ -61,21 +61,21 @@ namespace UUCSL.Core
 		//   	A vector to compare with.
 		public int CompareTo(SVVector other)
 		{
-			if(ReferenceEquals(this, other))
+			if (ReferenceEquals(this, other))
 			{
 				return 0;
 			}
 
-			if(Length != other.Length)
+			if (Length != other.Length)
 			{
 				return Length.CompareTo(other.Length);
 			}
 
 			var result = 0;
-			for(var i = 0; i < Length; i++)
+			for (var i = 0; i < Length; i++)
 			{
 				result = Value[i].CompareTo(other.Value[i]);
-				if(result != 0)
+				if (result != 0)
 				{
 					return result;
 				}
@@ -88,11 +88,11 @@ namespace UUCSL.Core
 
 		public bool Includes(SVVector other)
 		{
-			if(Length >= other.Length)
+			if (Length >= other.Length)
 			{
-				for(var i = other.Length - 1; i > -1; i--)
+				for (var i = other.Length - 1; i > -1; i--)
 				{
-					if(Value[i].CompareTo(other.Value[i]) < 0)
+					if (Value[i].CompareTo(other.Value[i]) < 0)
 					{
 						return false;
 					}

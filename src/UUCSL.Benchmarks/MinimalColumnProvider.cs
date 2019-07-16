@@ -10,7 +10,7 @@ namespace UUCSL.Benchmarks
 		public IEnumerable<IColumn> GetColumns(Summary summary)
 		{
 			yield return TargetMethodColumn.Method;
-			foreach(var column in JobCharacteristicColumn.AllColumns)
+			foreach (var column in JobCharacteristicColumn.AllColumns)
 			{
 				yield return column;
 			}

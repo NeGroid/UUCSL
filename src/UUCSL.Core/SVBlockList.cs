@@ -6,15 +6,15 @@ namespace UUCSL.Core
 {
 	public class SVBlockList
 	{
-		public SortedList<SVVector, SVBlock> Blocks { get; private set; } = new SortedList<SVVector, SVBlock>();
+		public SortedList<SVVector, SVBlock> Blocks { get; } = new SortedList<SVVector, SVBlock>();
 
 		public IEnumerable<string> Keys => Blocks.Keys.Select(t => t.ToString());
 
 		public SVBlockList(IEnumerable<SVBlock> blocks)
 		{
-			foreach(var block in blocks)
+			foreach (var block in blocks)
 			{
-				if(Blocks.ContainsValue(block))
+				if (Blocks.ContainsValue(block))
 				{
 					continue;
 				}
@@ -22,7 +22,7 @@ namespace UUCSL.Core
 				Blocks[block.Vector] = block;
 
 				var index = Blocks.IndexOfValue(block);
-				if(!CheckRightBlocks(block, index))
+				if (!CheckRightBlocks(block, index))
 				{
 					CheckLeftBlocks(block, index);
 				}
@@ -32,7 +32,7 @@ namespace UUCSL.Core
 		private void CheckLeftBlocks(SVBlock block, int index)
 		{
 			var count = index - 1;
-			if(count <= 0)
+			if (count <= 0)
 			{
 				return;
 			}
@@ -41,7 +41,7 @@ namespace UUCSL.Core
 				.Take(count)
 				.Where(b => block.Includes(b));
 
-			foreach(var subblock in leftRange)
+			foreach (var subblock in leftRange)
 			{
 				Blocks.Remove(subblock.Vector);
 			}
@@ -50,7 +50,7 @@ namespace UUCSL.Core
 		private bool CheckRightBlocks(SVBlock block, int index)
 		{
 			var count = Blocks.Count - index - 1;
-			if(count <= 0)
+			if (count <= 0)
 			{
 				return false;
 			}
@@ -60,7 +60,7 @@ namespace UUCSL.Core
 				.Take(count)
 				.Any(b => b.Includes(block));
 
-			if(includesBlock)
+			if (includesBlock)
 			{
 				return Blocks.Remove(block.Vector);
 			}

@@ -11,7 +11,7 @@ namespace UUCSL.Benchmarks
 		public static IEnumerable<SVBlock> GenerateBlocks(int count = 1_000_000)
 		{
 			var rand = new Random(42);
-			foreach(var i in Enumerable.Range(0, count))
+			foreach (var i in Enumerable.Range(0, count))
 			{
 				var bytes = new byte[13];
 				rand.NextBytes(bytes);

@@ -9,7 +9,7 @@ namespace UUCSL.Benchmarks
 		[Benchmark]
 		public void SVBlockList()
 		{
-			var sortedBlocks = new SVBlockList(TestData.GenerateBlocks());
+			_ = new SVBlockList(TestData.GenerateBlocks());
 		}
 	}
 }

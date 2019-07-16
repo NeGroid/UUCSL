@@ -5,18 +5,18 @@ namespace UUCSL.Core
 {
 	public class SVBlockTree
 	{
-		private SortedDictionary<SVVector, SVBlockTree> _subblocks;
+		private readonly SortedDictionary<SVVector, SVBlockTree> _subblocks;
 
-		public SVBlock Block { get; private set; }
+		public SVBlock Block { get; }
 
 		public SVBlockTree(SVBlock block, SortedDictionary<SVVector, SVBlockTree> children = null)
 		{
 			Block = block;
-			if(children != null)
+			if (children != null)
 			{
 				_subblocks = children;
 
-				if(_subblocks.Any())
+				if (_subblocks.Count > 0)
 				{
 					MaxBlock = _subblocks.Values.Last().Block;
 				}
@@ -29,24 +29,24 @@ namespace UUCSL.Core
 
 		public SVBlockTree Add(SVBlock block)
 		{
-			if(block.Includes(Block))
+			if (block.Includes(Block))
 			{
 				return new SVBlockTree(block, new SortedDictionary<SVVector, SVBlockTree> { { block.Vector, this } });
 			}
 
-			if(Block.Includes(block))
+			if (Block.Includes(block))
 			{
 				SVBlockTree childTree = null;
-				foreach(var child in Children)
+				foreach (var child in Children)
 				{
-					if(child.Block.Includes(block))
+					if (child.Block.Includes(block))
 					{
 						childTree = child;
 						break;
 					}
 				}
 
-				if(childTree == null)
+				if (childTree == null)
 				{
 					_subblocks.Add(block.Vector, new SVBlockTree(block));
 					MaxBlock = Children.Select(t => t.Block).Last();
@@ -58,8 +58,8 @@ namespace UUCSL.Core
 			}
 			else
 			{
-				var subblocks = new SortedDictionary<SVVector, SVBlockTree> 
-				{ 
+				var subblocks = new SortedDictionary<SVVector, SVBlockTree>
+				{
 					{ block.Vector, new SVBlockTree(block) },
 					{ Block.Vector, this },
 				};

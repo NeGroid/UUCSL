@@ -20,7 +20,7 @@ namespace UUCSL.Console
 		{
 			_logger = loggerFactory.CreateLogger<NCSTaskService>();
 
-			if(!Path.IsPathRooted(file.Value.File))
+			if (!Path.IsPathRooted(file.Value.File))
 			{
 				_filePath = Path.GetFullPath(file.Value.File);
 			}
@@ -29,7 +29,7 @@ namespace UUCSL.Console
 				_filePath = file.Value.File;
 			}
 
-			if(!File.Exists(_filePath))
+			if (!File.Exists(_filePath))
 			{
 				throw new FileNotFoundException($"Could not find input file: '{_filePath}'");
 			}
@@ -43,16 +43,16 @@ namespace UUCSL.Console
 
 			var lines = allLines.Where(t => !string.IsNullOrEmpty(t) && !t.StartsWith("#")).ToArray();
 
-			if(lines.Length < 2)
+			if (lines.Length < 2)
 			{
 				throw new InvalidOperationException($"Too few lines in the file '{_filePath}");
 			}
 
 			var blocks = new List<SVBlock>();
 			var index = 2;
-			while(index < lines.Length)
+			while (index < lines.Length)
 			{
-				if(cancellationToken.IsCancellationRequested)
+				if (cancellationToken.IsCancellationRequested)
 				{
 					return;
 				}
@@ -85,12 +85,12 @@ namespace UUCSL.Console
 
 		private class ELBLine
 		{
-			public int Samples { get; private set; }
-			public int Patterns { get; private set; }
+			public int Samples { get; }
+			public int Patterns { get; }
 
 			public ELBLine(string line)
 			{
-				if(string.IsNullOrEmpty(line))
+				if (string.IsNullOrEmpty(line))
 				{
 					throw new ArgumentNullException(nameof(line));
 				}

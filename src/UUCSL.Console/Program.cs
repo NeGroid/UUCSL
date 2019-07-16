@@ -18,15 +18,13 @@ namespace UUCSL.Console
 		public static Task Main(string[] args)
 		{
 			var host = new HostBuilder()
-				.ConfigureHostConfiguration(configHost =>
-				{
+				.ConfigureHostConfiguration(configHost => {
 					configHost.SetBasePath(Directory.GetCurrentDirectory());
 					configHost.AddJsonFile("hostsettings.json", optional: true);
 					configHost.AddEnvironmentVariables(prefix: "PREFIX_");
 					configHost.AddCommandLine(args, _switchMappings);
 				})
-				.ConfigureAppConfiguration((hostContext, configApp) =>
-				{
+				.ConfigureAppConfiguration((hostContext, configApp) => {
 					configApp.AddJsonFile("appsettings.json", optional: true);
 					configApp.AddJsonFile(
 						$"appsettings.{hostContext.HostingEnvironment.EnvironmentName}.json",
@@ -34,8 +32,7 @@ namespace UUCSL.Console
 					configApp.AddEnvironmentVariables(prefix: "PREFIX_");
 					configApp.AddCommandLine(args, _switchMappings);
 				})
-				.ConfigureServices((hostContext, services) => 
-				{
+				.ConfigureServices((hostContext, services) => {
 					services.Configure<TaskOptions>(hostContext.Configuration);
 					services.AddHostedService<NCSTaskService>();
 				})

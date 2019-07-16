@@ -6,18 +6,16 @@ namespace UUCSL.Core
 {
 	public class SVBlock : IComparable<SVBlock>, IEquatable<SVBlock>
 	{
-		private SVVector Key;
+		public string[] Words { get; }
 
-		public string[] Words { get; private set; }
-
-		public SVVector Vector => Key;
+		public SVVector Vector { get; }
 
 		public SVBlock(SVVector key, string words)
 		{
-			Key = key;
-			Words = words.Split(new [] { Environment.NewLine, " "}, StringSplitOptions.RemoveEmptyEntries);
+			Vector = key;
+			Words = words.Split(new[] { Environment.NewLine, " " }, StringSplitOptions.RemoveEmptyEntries);
 
-			foreach(var word in Words)
+			foreach (var word in Words)
 			{
 				string.Intern(word);
 			}
@@ -26,20 +24,20 @@ namespace UUCSL.Core
 		public static SVBlock FromSV(SVVector key, IEnumerable<string> words) =>
 			new SVBlock(key, string.Join(' ', words));
 
-		public int CompareTo(SVBlock other) => Key.CompareTo(other.Key);
+		public int CompareTo(SVBlock other) => Vector.CompareTo(other.Vector);
 
 		public bool Equals(SVBlock other)
 		{
-			if(Words.Length > other.Words.Length)
+			if (Words.Length > other.Words.Length)
 			{
 				return false;
 			}
 
-			return Key.Equals(other.Key);
+			return Vector.Equals(other.Vector);
 		}
 
-		public bool Includes(SVBlock other) => Key.Includes(other.Key);
+		public bool Includes(SVBlock other) => Vector.Includes(other.Vector);
 
-		public override string ToString() => Key.ToString();
+		public override string ToString() => Vector.ToString();
 	}
 }

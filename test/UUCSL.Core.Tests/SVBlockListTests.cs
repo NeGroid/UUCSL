@@ -10,7 +10,7 @@ namespace UUCSL.Core.Tests
 		[Fact]
 		public void Create_SVBlock_from_SV_string()
 		{
-			var fileContent = @"[ELB samples = 3 patterns = 5]
+			const string fileContent = @"[ELB samples = 3 patterns = 5]
 [SV 0 0 0 0 0 0 1 0 1 1 1 0 1]
 DND
 DDC
@@ -25,21 +25,21 @@ DDN
 DAD
 AND";
 			var blocks = new List<SVBlock>();
-			var patterns = 5;
+			const int patterns = 5;
 
-			using(var reader = new StringReader(fileContent))
+			using (var reader = new StringReader(fileContent))
 			{
-				while(true)
+				while (true)
 				{
 					var line = reader.ReadLine();
-					if(string.IsNullOrEmpty(line))
+					if (string.IsNullOrEmpty(line))
 					{
 						break;
 					}
-					if(line.StartsWith("[SV"))
+					if (line.StartsWith("[SV"))
 					{
 						var svVector = SVVector.FromSV(line);
-						var words = Enumerable.Range(0, patterns).Select(i => reader.ReadLine());
+						var words = Enumerable.Range(0, patterns).Select(_ => reader.ReadLine());
 						var block = SVBlock.FromSV(svVector, words);
 						blocks.Add(block);
 					}
@@ -49,7 +49,7 @@ AND";
 			var blockList = new SVBlockList(blocks);
 			var svKeys = blockList.Keys.ToArray();
 
-			Assert.Equal(new []
+			Assert.Equal(new[]
 				{
 					"[SV 0 0 0 0 0 0 0 1 1 1 1 0 1]",
 					"[SV 0 0 0 0 0 0 1 0 1 1 1 0 1]"
@@ -60,7 +60,7 @@ AND";
 		[Fact]
 		public void Create_SVBlock_from_SV_string_with_equal_block()
 		{
-			var fileContent = @"[ELB samples = 3 patterns = 5]
+			const string fileContent = @"[ELB samples = 3 patterns = 5]
 [SV 0 0 0 0 0 0 1 0 1 1 1 0 1]
 DND
 DDC
@@ -82,21 +82,21 @@ DDN
 DAD
 AND";
 			var blocks = new List<SVBlock>();
-			var patterns = 5;
+			const int patterns = 5;
 
-			using(var reader = new StringReader(fileContent))
+			using (var reader = new StringReader(fileContent))
 			{
-				while(true)
+				while (true)
 				{
 					var line = reader.ReadLine();
-					if(string.IsNullOrEmpty(line))
+					if (string.IsNullOrEmpty(line))
 					{
 						break;
 					}
-					if(line.StartsWith("[SV"))
+					if (line.StartsWith("[SV"))
 					{
 						var svVector = SVVector.FromSV(line);
-						var words = Enumerable.Range(0, patterns).Select(i => reader.ReadLine());
+						var words = Enumerable.Range(0, patterns).Select(_ => reader.ReadLine());
 						var block = SVBlock.FromSV(svVector, words);
 						blocks.Add(block);
 					}
@@ -106,7 +106,7 @@ AND";
 			var blockList = new SVBlockList(blocks);
 			var svKeys = blockList.Keys.ToArray();
 
-			Assert.Equal(new []
+			Assert.Equal(new[]
 				{
 					"[SV 0 0 0 0 0 0 0 1 1 1 1 0 1]",
 					"[SV 0 0 0 0 0 0 1 0 1 1 1 0 1]"
@@ -117,7 +117,7 @@ AND";
 		[Fact]
 		public void Create_SVBlock_from_SV_string_with_sub_block()
 		{
-			var fileContent = @"[ELB samples = 3 patterns = 5]
+			const string fileContent = @"[ELB samples = 3 patterns = 5]
 [SV 0 0 0 0 0 0 1 0 1 1 1 0 1]
 DND
 DDC
@@ -146,21 +146,21 @@ DDN
 DAD
 AND";
 			var blocks = new List<SVBlock>();
-			var patterns = 5;
+			const int patterns = 5;
 
-			using(var reader = new StringReader(fileContent))
+			using (var reader = new StringReader(fileContent))
 			{
-				while(true)
+				while (true)
 				{
 					var line = reader.ReadLine();
-					if(string.IsNullOrEmpty(line))
+					if (string.IsNullOrEmpty(line))
 					{
 						break;
 					}
-					if(line.StartsWith("[SV"))
+					if (line.StartsWith("[SV"))
 					{
 						var svVector = SVVector.FromSV(line);
-						var words = Enumerable.Range(0, patterns).Select(i => reader.ReadLine());
+						var words = Enumerable.Range(0, patterns).Select(_ => reader.ReadLine());
 						var block = SVBlock.FromSV(svVector, words);
 						blocks.Add(block);
 					}
@@ -170,7 +170,7 @@ AND";
 			var blockList = new SVBlockList(blocks);
 			var svKeys = blockList.Keys.ToArray();
 
-			Assert.Equal(new []
+			Assert.Equal(new[]
 				{
 					"[SV 0 0 0 0 0 0 0 1 1 1 1 0 1]",
 					"[SV 0 0 0 0 0 0 1 0 1 1 1 0 1]"
@@ -183,7 +183,6 @@ AND";
 		{
 			var v1 = SVVector.FromSV("[SV 0 0 0 0 1 0 0 3 1 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 ]");
 			var v2 = SVVector.FromSV("[SV 0 0 0 0 1 0 0 3 1 0 0 1 0 0 0 0 0 2 0 0 0 0 0 0 0 0 0 0 ]");
-
 
 			Assert.True(v1.Equals(v2));
 		}
