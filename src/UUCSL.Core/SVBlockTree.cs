@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace UUCSL.Core
 {
@@ -14,15 +15,19 @@ namespace UUCSL.Core
 
 		public ICollection<SVBlockTree> Children => _subblocks.Values;
 
-		private SVBlockTree(IEnumerable<SVBlockTree> children, SVBlock block = null)
+		private SVBlockTree(IEnumerable<SVBlockTree> children)
 		{
 			if (children is null)
 			{
 				throw new ArgumentNullException(nameof(children));
 			}
 
-			Block = block;
 			AddChildren(children);
+
+			if (Children.Count > 0)
+			{
+				Block = CreateRoot(Children.First().Block.Vector.Length);
+			}
 		}
 
 		public SVBlockTree(SVBlock block)
@@ -35,8 +40,9 @@ namespace UUCSL.Core
 			Block = block;
 		}
 
-		public SVBlockTree()
+		public SVBlockTree(int vectorLength)
 		{
+			Block = CreateRoot(vectorLength);
 		}
 
 		public SVBlockTree Add(SVBlock block)
@@ -46,70 +52,71 @@ namespace UUCSL.Core
 				throw new ArgumentNullException(nameof(block));
 			}
 
-			return AddInner(new SVBlockTree(block));
+			var tree = Includes(block);
+			if (tree == null)
+			{
+				return new SVBlockTree(new[] { this, new SVBlockTree(block) });
+			}
+
+			var childTree = ChildrenIncludes(tree, block);
+			if (childTree == null)
+			{
+				tree.AddChild(block);
+				return tree;
+			}
+
+			return childTree.Add(block);
 		}
 
-		private SVBlockTree AddInner(SVBlockTree tree)
+		public SVBlockTree Includes(SVBlock block)
 		{
-			if (!IsRoot && !tree.IsRoot)
-			{
-				var block = tree.Block;
-				if (block.Includes(Block))
-				{
-					return tree.AddInner(this);
-				}
+			bool hasChildren = Children.Count > 0;
+			bool includes = Block?.Includes(block) ?? false;
+			var current = includes ? this : null;
 
-				if (Block.Includes(block))
-				{
-					AddChild(tree);
-					return this;
-				}
+			if (includes && !hasChildren)
+			{
+				return this;
 			}
 
-			var notRootTree = !IsRoot ? (this, tree) : !tree.IsRoot ? (tree, this) : (null, null);
-			if(notRootTree.Item1 != null)
+			if (hasChildren)
 			{
-				//notRootTree.Item1.ad
+				return ChildrenIncludes(this, block) ?? current;
 			}
 
-			foreach (var child in Children)
-			{
-				tree = tree.AddInner(child);
-			}
-
-			var subblocks = new SVBlockTree[] { tree, this };
-			return new SVBlockTree(subblocks);
+			return current;
 		}
 
-		private void AddChild(SVBlockTree tree)
+		private static SVBlockTree ChildrenIncludes(SVBlockTree parent, SVBlock block)
 		{
-			if (_subblocks.Count == 0)
+			foreach (var child in parent.Children.Reverse())
 			{
-				_subblocks.Add(tree.Block.Vector, tree);
-				return;
+				var tree = child.Includes(block);
+				if (tree != null)
+				{
+					return tree;
+				}
+				if (block.Includes(child.Block))
+				{
+					var newChild = new SVBlockTree(block);
+					parent.Replace(child, newChild);
+
+					return newChild;
+				}
 			}
 
-			var maxBlock = Children.Last().Block;
-			int comparasion = maxBlock.CompareTo(tree.Block);
-			if (comparasion == 0)
-			{
-				return;
-			}
-			if (comparasion < 0)
-			{
-				_subblocks.Add(tree.Block.Vector, tree);
-				return;
-			}
+			return null;
+		}
 
-			var childIncludes = Children.Reverse().FirstOrDefault(t => t.Block.Includes(tree.Block));
-			if (childIncludes != null)
-			{
-				childIncludes.AddChild(tree);
-			}
-			else
-			{
-				_subblocks.Add(tree.Block.Vector, tree);
-			}
+		private void Replace(SVBlockTree oldChild, SVBlockTree newChild)
+		{
+			_subblocks.Remove(oldChild.Block.Vector);
+			_subblocks.Add(newChild.Block.Vector, newChild);
+		}
+
+		private void AddChild(SVBlock block)
+		{
+			_subblocks.Add(block.Vector, new SVBlockTree(block));
 		}
 
 		private void AddChildren(IEnumerable<SVBlockTree> children)
@@ -118,6 +125,17 @@ namespace UUCSL.Core
 			{
 				_subblocks.Add(child.Block.Vector, child);
 			}
+		}
+
+		private static SVBlock CreateRoot(int vectorLength)
+		{
+			var vector = new StringBuilder();
+			foreach (var nine in Enumerable.Range(1, vectorLength).Select(_ => '9'))
+			{
+				vector.Append(nine);
+			}
+			var svVector = SVVector.FromSV(vector.ToString());
+			return new SVBlock(svVector, "ROOT");
 		}
 	}
 }

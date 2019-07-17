@@ -59,7 +59,45 @@ AND";
 			var tree = CreateTree(_file);
 			var children = tree.Children.Select(t => t.Block.ToString()).ToArray();
 
-			Assert.Equal(new [] { "" }, children);
+			Assert.Equal(new[] {
+				"[SV 0 0 0 0 0 0 0 1 1 1 1 0 1]",
+				"[SV 0 0 0 0 0 0 1 0 1 1 1 0 1]",
+				"[SV 0 0 0 0 0 1 0 0 1 1 1 0 1]",
+				"[SV 0 0 0 0 1 0 0 0 1 1 1 0 1]",
+				"[SV 0 0 0 1 0 0 0 0 1 1 1 0 1]" },
+				children);
+		}
+
+		[Fact]
+		public void Create_SVBlockTree_from_file_correctly()
+		{
+			const string file = @"[NCS = NCDA8]
+[Deuterated = False]
+[ELB samples = 3 patterns = 5]
+[SV 0 0 0 1 0 0 0 0 1 1 1 0 1]
+NNN
+CDD
+DDN
+DAD
+AND
+[ELB samples = 3 patterns = 5]
+[SV 0 0 0 2 0 0 0 0 1 1 1 0 1]
+NNN
+CDD
+DDN
+DAD
+AND";
+			var tree = CreateTree(file);
+			var children = tree.Children.Select(t => t.Block.ToString()).ToArray();
+
+			Assert.Equal("[SV 0 0 0 2 0 0 0 0 1 1 1 0 1]", tree.Block.ToString());
+			Assert.Equal(new[] {
+				"[SV 0 0 0 0 0 0 0 1 1 1 1 0 1]",
+				"[SV 0 0 0 0 0 0 1 0 1 1 1 0 1]",
+				"[SV 0 0 0 0 0 1 0 0 1 1 1 0 1]",
+				"[SV 0 0 0 0 1 0 0 0 1 1 1 0 1]",
+				"[SV 0 0 0 1 0 0 0 0 1 1 1 0 1]" },
+				children);
 		}
 
 		private static SVBlockTree CreateTree(string file)
@@ -69,7 +107,7 @@ AND";
 				throw new ArgumentNullException(nameof(file));
 			}
 
-			var tree = new SVBlockTree();
+			var tree = new SVBlockTree(13);
 
 			foreach (var block in ReadLines())
 			{

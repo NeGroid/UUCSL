@@ -35,7 +35,7 @@ namespace UUCSL.Core
 			}
 
 			var sb = new StringBuilder();
-			foreach (var digit in svString.Select(t => t).Where(ch => Char.IsDigit(ch)))
+			foreach (var digit in svString.Select(t => t).Where(char.IsDigit))
 			{
 				sb.Append(digit);
 			}
