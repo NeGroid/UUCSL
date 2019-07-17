@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -5,72 +6,118 @@ namespace UUCSL.Core
 {
 	public class SVBlockTree
 	{
-		private readonly SortedDictionary<SVVector, SVBlockTree> _subblocks;
+		private readonly SortedDictionary<SVVector, SVBlockTree> _subblocks = new SortedDictionary<SVVector, SVBlockTree>();
 
 		public SVBlock Block { get; }
 
-		public SVBlockTree(SVBlock block, SortedDictionary<SVVector, SVBlockTree> children = null)
-		{
-			Block = block;
-			if (children != null)
-			{
-				_subblocks = children;
+		public bool IsRoot => Block is null;
 
-				if (_subblocks.Count > 0)
-				{
-					MaxBlock = _subblocks.Values.Last().Block;
-				}
-			}
-			else
+		public ICollection<SVBlockTree> Children => _subblocks.Values;
+
+		private SVBlockTree(IEnumerable<SVBlockTree> children, SVBlock block = null)
+		{
+			if (children is null)
 			{
-				_subblocks = new SortedDictionary<SVVector, SVBlockTree>();
+				throw new ArgumentNullException(nameof(children));
 			}
+
+			Block = block;
+			AddChildren(children);
+		}
+
+		public SVBlockTree(SVBlock block)
+		{
+			if (block is null)
+			{
+				throw new ArgumentNullException(nameof(block));
+			}
+
+			Block = block;
+		}
+
+		public SVBlockTree()
+		{
 		}
 
 		public SVBlockTree Add(SVBlock block)
 		{
-			if (block.Includes(Block))
+			if (block is null)
 			{
-				return new SVBlockTree(block, new SortedDictionary<SVVector, SVBlockTree> { { block.Vector, this } });
+				throw new ArgumentNullException(nameof(block));
 			}
 
-			if (Block.Includes(block))
+			return AddInner(new SVBlockTree(block));
+		}
+
+		private SVBlockTree AddInner(SVBlockTree tree)
+		{
+			if (!IsRoot && !tree.IsRoot)
 			{
-				SVBlockTree childTree = null;
-				foreach (var child in Children)
+				var block = tree.Block;
+				if (block.Includes(Block))
 				{
-					if (child.Block.Includes(block))
-					{
-						childTree = child;
-						break;
-					}
+					return tree.AddInner(this);
 				}
 
-				if (childTree == null)
+				if (Block.Includes(block))
 				{
-					_subblocks.Add(block.Vector, new SVBlockTree(block));
-					MaxBlock = Children.Select(t => t.Block).Last();
+					AddChild(tree);
+					return this;
 				}
-				else
-				{
-					childTree.Add(block);
-				}
+			}
+
+			var notRootTree = !IsRoot ? (this, tree) : !tree.IsRoot ? (tree, this) : (null, null);
+			if(notRootTree.Item1 != null)
+			{
+				//notRootTree.Item1.ad
+			}
+
+			foreach (var child in Children)
+			{
+				tree = tree.AddInner(child);
+			}
+
+			var subblocks = new SVBlockTree[] { tree, this };
+			return new SVBlockTree(subblocks);
+		}
+
+		private void AddChild(SVBlockTree tree)
+		{
+			if (_subblocks.Count == 0)
+			{
+				_subblocks.Add(tree.Block.Vector, tree);
+				return;
+			}
+
+			var maxBlock = Children.Last().Block;
+			int comparasion = maxBlock.CompareTo(tree.Block);
+			if (comparasion == 0)
+			{
+				return;
+			}
+			if (comparasion < 0)
+			{
+				_subblocks.Add(tree.Block.Vector, tree);
+				return;
+			}
+
+			var childIncludes = Children.Reverse().FirstOrDefault(t => t.Block.Includes(tree.Block));
+			if (childIncludes != null)
+			{
+				childIncludes.AddChild(tree);
 			}
 			else
 			{
-				var subblocks = new SortedDictionary<SVVector, SVBlockTree>
-				{
-					{ block.Vector, new SVBlockTree(block) },
-					{ Block.Vector, this },
-				};
-				return new SVBlockTree(null, subblocks);
+				_subblocks.Add(tree.Block.Vector, tree);
 			}
-
-			return this;
 		}
 
-		public ICollection<SVBlockTree> Children => _subblocks.Values;
-
-		public SVBlock MaxBlock { get; private set; }
+		private void AddChildren(IEnumerable<SVBlockTree> children)
+		{
+			foreach (var child in children)
+			{
+				_subblocks.Add(child.Block.Vector, child);
+			}
+		}
 	}
 }

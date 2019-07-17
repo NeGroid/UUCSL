@@ -64,7 +64,7 @@ namespace UUCSL.Console
 				var vector = SVVector.FromSV(lines[index + 1]); // [SV 0 0 0 0 0 0 0 1 1 1 1 0 1]
 
 				var words = Enumerable.Range(index + 2, elbLine.Patterns).Select(i => lines[i]);
-				_logger.LogDebug($"Words ({elbLine.Patterns}): {String.Join(' ', words)}");
+				_logger.LogDebug($"Words ({elbLine.Patterns}): {string.Join(' ', words)}");
 
 				var block = SVBlock.FromSV(vector, words);
 				blocks.Add(block);
@@ -81,32 +81,6 @@ namespace UUCSL.Console
 		{
 			_logger.LogInformation("NCSTaskService ended");
 			return Task.FromResult(true);
-		}
-
-		private class ELBLine
-		{
-			public int Samples { get; }
-			public int Patterns { get; }
-
-			public ELBLine(string line)
-			{
-				if (string.IsNullOrEmpty(line))
-				{
-					throw new ArgumentNullException(nameof(line));
-				}
-
-				//[ELB samples = 3 patterns = 12]
-				var nums = line
-					.Replace("[ELB samples = ", string.Empty)
-					.Replace("patterns = ", string.Empty)
-					.Replace("]", string.Empty)
-					.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-					.Select(int.Parse)
-					.ToArray();
-
-				Samples = nums[0];
-				Patterns = nums[1];
-			}
 		}
 	}
 }
