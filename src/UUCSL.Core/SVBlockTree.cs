@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace UUCSL.Core
 {
@@ -9,25 +8,27 @@ namespace UUCSL.Core
 	{
 		private readonly SortedDictionary<SVVector, SVBlockTree> _subblocks = new SortedDictionary<SVVector, SVBlockTree>();
 
-		public SVBlock Block { get; }
+		public SVBlock Block { get; } = null;
+		public SVBlockTree Parent { get; private set; } = null;
 
 		public bool IsRoot => Block is null;
-
 		public ICollection<SVBlockTree> Children => _subblocks.Values;
+		public int Count => _subblocks.Count;
+		public bool HasChildren => Count > 0;
 
-		private SVBlockTree(IEnumerable<SVBlockTree> children)
+		private SVBlockTree(IEnumerable<SVBlockTree> children, SVBlockTree parent = null)
 		{
 			if (children is null)
 			{
 				throw new ArgumentNullException(nameof(children));
 			}
 
+			Parent = parent;
 			AddChildren(children);
+		}
 
-			if (Children.Count > 0)
-			{
-				Block = CreateRoot(Children.First().Block.Vector.Length);
-			}
+		public SVBlockTree()
+		{
 		}
 
 		public SVBlockTree(SVBlock block)
@@ -40,102 +41,124 @@ namespace UUCSL.Core
 			Block = block;
 		}
 
-		public SVBlockTree(int vectorLength)
+		public override string ToString()
 		{
-			Block = CreateRoot(vectorLength);
+			string block = IsRoot ? "NULL" : Block.ToString();
+			return $"{block}({Count})";
 		}
 
-		public SVBlockTree Add(SVBlock block)
+		public SVBlockTree Merge(SVBlockTree tree)
 		{
-			if (block is null)
+			if (IsRoot)
 			{
-				throw new ArgumentNullException(nameof(block));
-			}
+				if (!HasChildren)
+				{
+					AddChild(tree);
+					return this;
+				}
+				if (tree.IsRoot)
+				{
+					return new SVBlockTree(Children.Union(tree.Children));
+				}
 
-			var tree = Includes(block);
-			if (tree == null)
-			{
-				return new SVBlockTree(new[] { this, new SVBlockTree(block) });
-			}
-
-			var childTree = ChildrenIncludes(tree, block);
-			if (childTree == null)
-			{
-				tree.AddChild(block);
-				return tree;
-			}
-
-			return childTree.Add(block);
-		}
-
-		public SVBlockTree Includes(SVBlock block)
-		{
-			bool hasChildren = Children.Count > 0;
-			bool includes = Block?.Includes(block) ?? false;
-			var current = includes ? this : null;
-
-			if (includes && !hasChildren)
-			{
+				var added = SearchChildren(tree);
+				if(!added)
+				{
+					AddChild(tree);
+				}
 				return this;
 			}
 
-			if (hasChildren)
+			if (tree.IsRoot)
 			{
-				return ChildrenIncludes(this, block) ?? current;
+				if(!tree.HasChildren)
+				{
+					return this;
+				}
+
+				SVBlockTree newTree = Merge(tree.Children.Last());
+				foreach(var child in tree.Children)
+				{
+					newTree = newTree.Merge(child);
+				}
+
+				return newTree;
 			}
 
-			return current;
+			var block = tree.Block;
+			if(block == null)
+			{
+				throw new InvalidOperationException();
+			}
+			int comparasion = Block.CompareTo(block);
+
+			if (comparasion == 0)
+			{
+				return this;
+			}
+			if (comparasion < 0)
+			{
+				return tree.Merge(this);
+			}
+
+			// Block > block
+			bool includes = Block.Includes(block);
+			if (includes)
+			{
+				bool added = SearchChildren(tree);
+				if (!added)
+				{
+					AddChild(tree);
+				}
+
+				return this;
+			}
+
+			if (Parent == null)
+			{
+				return new SVBlockTree(new[] { tree, this });
+			}
+
+			Parent.AddChild(tree);
+
+			return Parent;
 		}
 
-		private static SVBlockTree ChildrenIncludes(SVBlockTree parent, SVBlock block)
+		private bool SearchChildren(SVBlockTree tree)
 		{
-			foreach (var child in parent.Children.Reverse())
+			// Block includes block (>)
+			var firstIncludes = Children.Reverse().FirstOrDefault(t => t.Block.Includes(tree.Block));
+			if (firstIncludes != null)
 			{
-				var tree = child.Includes(block);
-				if (tree != null)
+				if (!firstIncludes.HasChildren)
 				{
-					return tree;
+					firstIncludes.AddChild(tree);
+					return true;
 				}
-				if (block.Includes(child.Block))
-				{
-					var newChild = new SVBlockTree(block);
-					parent.Replace(child, newChild);
 
-					return newChild;
+				bool added = SearchChildren(firstIncludes);
+				if (!added)
+				{
+					firstIncludes.AddChild(tree);
+					return true;
 				}
 			}
 
-			return null;
+			return false;
 		}
 
-		private void Replace(SVBlockTree oldChild, SVBlockTree newChild)
+		private void AddChild(SVBlockTree tree)
 		{
-			_subblocks.Remove(oldChild.Block.Vector);
-			_subblocks.Add(newChild.Block.Vector, newChild);
-		}
-
-		private void AddChild(SVBlock block)
-		{
-			_subblocks.Add(block.Vector, new SVBlockTree(block));
+			_subblocks.TryAdd(tree.Block.Vector, tree);
+			tree.Parent = this;
 		}
 
 		private void AddChildren(IEnumerable<SVBlockTree> children)
 		{
 			foreach (var child in children)
 			{
-				_subblocks.Add(child.Block.Vector, child);
+				AddChild(child);
 			}
-		}
-
-		private static SVBlock CreateRoot(int vectorLength)
-		{
-			var vector = new StringBuilder();
-			foreach (var nine in Enumerable.Range(1, vectorLength).Select(_ => '9'))
-			{
-				vector.Append(nine);
-			}
-			var svVector = SVVector.FromSV(vector.ToString());
-			return new SVBlock(svVector, "ROOT");
 		}
 	}
 }

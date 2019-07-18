@@ -90,7 +90,7 @@ AND";
 			var tree = CreateTree(file);
 			var children = tree.Children.Select(t => t.Block.ToString()).ToArray();
 
-			Assert.Equal("[SV 0 0 0 2 0 0 0 0 1 1 1 0 1]", tree.Block.ToString());
+			Assert.Equal("[SV 0 0 0 2 0 0 0 0 1 1 1 0 1]", tree.Block?.ToString());
 			Assert.Equal(new[] {
 				"[SV 0 0 0 0 0 0 0 1 1 1 1 0 1]",
 				"[SV 0 0 0 0 0 0 1 0 1 1 1 0 1]",
@@ -107,19 +107,19 @@ AND";
 				throw new ArgumentNullException(nameof(file));
 			}
 
-			var tree = new SVBlockTree(13);
+			var tree = new SVBlockTree();
 
-			foreach (var block in ReadLines())
+			foreach (var block in ReadLines(file))
 			{
-				tree = tree.Add(block);
+				tree = tree.Merge(new SVBlockTree(block));
 			}
 
 			return tree;
 		}
 
-		private static IEnumerable<SVBlock> ReadLines()
+		private static IEnumerable<SVBlock> ReadLines(string file)
 		{
-			var allLines = _file.Split(Environment.NewLine);
+			var allLines = file.Split(Environment.NewLine);
 			var lines = allLines.Where(t => !string.IsNullOrEmpty(t) && !t.StartsWith("#")).ToArray();
 			var index = 2;
 			while (index < lines.Length)
