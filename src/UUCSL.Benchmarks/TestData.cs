@@ -8,7 +8,7 @@ namespace UUCSL.Benchmarks
 {
 	public static class TestData
 	{
-		public static IEnumerable<SVBlock> GenerateBlocks(int count = 1_000_000)
+		public static IEnumerable<SVBlock> GenerateBlocks(int count = 35_500)
 		{
 			var rand = new Random(42);
 			foreach (var i in Enumerable.Range(0, count))
@@ -19,8 +19,7 @@ namespace UUCSL.Benchmarks
 				sb.Append(string.Join(' ', bytes));
 				sb.Append(']');
 				var v = SVVector.FromSV(sb.ToString());
-				var block = SVBlock.FromSV(v, new string[] { "ABC" });
-				yield return block;
+				yield return SVBlock.FromSV(v, new string[] { "ABC" });
 			}
 		}
 	}

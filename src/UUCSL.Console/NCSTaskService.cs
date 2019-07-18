@@ -48,8 +48,9 @@ namespace UUCSL.Console
 				throw new InvalidOperationException($"Too few lines in the file '{_filePath}");
 			}
 
-			var blocks = new List<SVBlock>();
-			var index = 2;
+			var blockTree = new SVBlockTree();
+			int index = 2;
+			int count = 0;
 			while (index < lines.Length)
 			{
 				if (cancellationToken.IsCancellationRequested)
@@ -67,14 +68,14 @@ namespace UUCSL.Console
 				_logger.LogDebug($"Words ({elbLine.Patterns}): {string.Join(' ', words)}");
 
 				var block = SVBlock.FromSV(vector, words);
-				blocks.Add(block);
+				blockTree = blockTree.Merge(new SVBlockTree(block));
+				count++;
 				index += elbLine.Patterns + 2;
 			}
 
-			var blockList = new SVBlockList(blocks);
 			var time = (DateTime.Now - startedAt).TotalSeconds;
-			_logger.LogInformation(string.Join(Environment.NewLine, blockList.Blocks.Select(t => t.Key)));
-			_logger.LogInformation($"{blockList.Blocks.Count} blocks from total {blocks.Count} found for total time {time}");
+			_logger.LogInformation(string.Join(Environment.NewLine, blockTree.Children.Select(t => t.Block)));
+			_logger.LogInformation($"{blockTree.Count} blocks from total {count} found for total time {time}");
 		}
 
 		public Task StopAsync(CancellationToken cancellationToken)

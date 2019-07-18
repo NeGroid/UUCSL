@@ -7,9 +7,13 @@ namespace UUCSL.Benchmarks
 	public class BruteForceTest
 	{
 		[Benchmark]
-		public void SVBlockList()
+		public void SVBlockTree()
 		{
-			_ = new SVBlockList(TestData.GenerateBlocks());
+			var tree = new SVBlockTree();
+			foreach(var block in TestData.GenerateBlocks())
+			{
+				tree = tree.Merge(new SVBlockTree(block));
+			}
 		}
 	}
 }
