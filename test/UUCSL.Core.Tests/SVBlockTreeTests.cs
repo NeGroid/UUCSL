@@ -100,6 +100,106 @@ AND";
 				children);
 		}
 
+		[Fact]
+		public void Real_data_test()
+		{
+			const string file = @"[NCS = NCDA8]
+[Deuterated = False]
+# iterator = 8
+[ELB samples = 3 patterns = 5]
+[SV 0 0 0 0 0 1 1 0 0 1 0 0 2 ]
+NND
+DAN
+DAD
+ANN
+ADD
+
+# iterator = 10
+[ELB samples = 3 patterns = 5]
+[SV 0 0 0 0 0 1 0 0 0 2 0 0 2 ]
+NND
+DAN
+DAD
+ADN
+ADD
+
+# iterator = 27
+[ELB samples = 3 patterns = 8]
+[SV 0 0 2 0 2 0 1 1 0 1 1 0 0 ]
+NNA
+NCN
+NDC
+NAD
+CNN
+CDD
+DXD
+DDX
+
+# iterator = 28
+[ELB samples = 3 patterns = 8]
+[SV 0 0 1 0 2 0 1 1 1 1 1 0 0 ]
+NNA
+NCN
+NDC
+NAD
+CNN
+CDD
+DXD
+DDN
+
+# iterator = 31
+[ELB samples = 3 patterns = 10]
+[SV 0 0 1 0 2 0 1 1 0 3 1 0 1 ]
+NNA
+NCN
+NDC
+NAD
+CNN
+CDD
+DXD
+DDA
+DAN
+ADN
+
+# iterator = 32
+[ELB samples = 3 patterns = 9]
+[SV 0 0 1 0 2 0 1 1 0 2 1 0 1 ]
+NNA
+NCN
+NDC
+NAD
+CNN
+CDD
+DXD
+DDA
+ADN
+
+# iterator = 34
+[ELB samples = 3 patterns = 9]
+[SV 0 0 1 0 2 0 1 1 0 3 1 0 0 ]
+NNA
+NCN
+NDC
+NAD
+CNN
+CDD
+DXD
+DAN
+ADN";
+
+			var tree = CreateTree(file);
+			var children = tree.Children.Select(t => t.Block.ToString()).ToArray();
+
+			Assert.Equal("[SV 0 0 0 2 0 0 0 0 1 1 1 0 1]", tree.Block?.ToString());
+			Assert.Equal(new[] {
+				"[SV 0 0 0 0 0 0 0 1 1 1 1 0 1]",
+				"[SV 0 0 0 0 0 0 1 0 1 1 1 0 1]",
+				"[SV 0 0 0 0 0 1 0 0 1 1 1 0 1]",
+				"[SV 0 0 0 0 1 0 0 0 1 1 1 0 1]",
+				"[SV 0 0 0 1 0 0 0 0 1 1 1 0 1]" },
+				children);
+		}
+
 		private static SVBlockTree CreateTree(string file)
 		{
 			if (file is null)
