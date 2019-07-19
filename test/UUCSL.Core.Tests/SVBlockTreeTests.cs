@@ -91,12 +91,7 @@ AND";
 			var children = tree.Children.Select(t => t.Block.ToString()).ToArray();
 
 			Assert.Equal("[SV 0 0 0 2 0 0 0 0 1 1 1 0 1]", tree.Block?.ToString());
-			Assert.Equal(new[] {
-				"[SV 0 0 0 0 0 0 0 1 1 1 1 0 1]",
-				"[SV 0 0 0 0 0 0 1 0 1 1 1 0 1]",
-				"[SV 0 0 0 0 0 1 0 0 1 1 1 0 1]",
-				"[SV 0 0 0 0 1 0 0 0 1 1 1 0 1]",
-				"[SV 0 0 0 1 0 0 0 0 1 1 1 0 1]" },
+			Assert.Equal(new[] { "[SV 0 0 0 1 0 0 0 0 1 1 1 0 1]" },
 				children);
 		}
 
@@ -190,14 +185,14 @@ ADN";
 			var tree = CreateTree(file);
 			var children = tree.Children.Select(t => t.Block.ToString()).ToArray();
 
-			Assert.Equal("[SV 0 0 0 2 0 0 0 0 1 1 1 0 1]", tree.Block?.ToString());
+			Assert.Null(tree.Block);
 			Assert.Equal(new[] {
-				"[SV 0 0 0 0 0 0 0 1 1 1 1 0 1]",
-				"[SV 0 0 0 0 0 0 1 0 1 1 1 0 1]",
-				"[SV 0 0 0 0 0 1 0 0 1 1 1 0 1]",
-				"[SV 0 0 0 0 1 0 0 0 1 1 1 0 1]",
-				"[SV 0 0 0 1 0 0 0 0 1 1 1 0 1]" },
-				children);
+				"[SV 0 0 0 0 0 1 0 0 0 2 0 0 2]",
+				"[SV 0 0 0 0 0 1 1 0 0 1 0 0 2]",
+				"[SV 0 0 1 0 2 0 1 1 0 3 1 0 1]",
+				"[SV 0 0 1 0 2 0 1 1 1 1 1 0 0]",
+				"[SV 0 0 2 0 2 0 1 1 0 1 1 0 0]"
+			}, children);
 		}
 
 		private static SVBlockTree CreateTree(string file)

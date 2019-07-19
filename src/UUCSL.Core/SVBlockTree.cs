@@ -8,7 +8,7 @@ namespace UUCSL.Core
 	{
 		private readonly SortedDictionary<SVVector, SVBlockTree> _subblocks = new SortedDictionary<SVVector, SVBlockTree>();
 
-		public SVBlock Block { get; } = null;
+		public SVBlock Block { get;  private set; } = null;
 		public SVBlockTree Parent { get; private set; } = null;
 
 		public bool IsRoot => Block is null;
@@ -53,7 +53,8 @@ namespace UUCSL.Core
 			{
 				if (!HasChildren)
 				{
-					AddChild(tree);
+					Block = tree.Block;
+					AddChildren(tree.Children);
 					return this;
 				}
 				if (tree.IsRoot)
