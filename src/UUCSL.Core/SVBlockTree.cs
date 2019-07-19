@@ -137,7 +137,7 @@ namespace UUCSL.Core
 					return true;
 				}
 
-				bool added = SearchChildren(firstIncludes);
+				bool added = firstIncludes.SearchChildren(tree);
 				if (!added)
 				{
 					firstIncludes.AddChild(tree);
