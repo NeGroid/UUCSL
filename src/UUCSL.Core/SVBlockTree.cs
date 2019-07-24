@@ -87,10 +87,6 @@ namespace UUCSL.Core
 			}
 
 			var block = tree.Block;
-			if(block == null)
-			{
-				throw new InvalidOperationException();
-			}
 			int comparasion = Block.CompareTo(block);
 
 			if (comparasion == 0)
@@ -131,12 +127,6 @@ namespace UUCSL.Core
 			var firstIncludes = Children.Reverse().FirstOrDefault(t => t.Block.Includes(tree.Block));
 			if (firstIncludes != null)
 			{
-				if (!firstIncludes.HasChildren)
-				{
-					firstIncludes.AddChild(tree);
-					return true;
-				}
-
 				bool added = firstIncludes.SearchChildren(tree);
 				if (!added)
 				{
